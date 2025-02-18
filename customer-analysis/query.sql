@@ -1,3 +1,27 @@
+--  Display a list of new customers who registered in the current year and made their first order within 7 days after registration.
+
+WITH 
+first_order AS (
+    SELECT 
+        o.client_id, 
+        MIN(o.order_date) AS first_order_date
+    FROM orders o 
+    JOIN clients c ON o.client_id = c.client_id
+    WHERE DATE_PART('year', c.signup_date) = DATE_PART('year', CURRENT_DATE)),
+    GROUP BY o.client_id
+)
+SELECT 
+    c.client_id,
+    c.name,
+    c.signup_date,
+    fo.first_order_date
+FROM
+    clients c
+JOIN 
+    first_order fo ON c.client_id = fo.client_id
+WHERE 
+    fo.first_order_date <= c.signup_date + INTERVAL '7 days'
+
 -- The total amount of purchases (total_amount) for each customer who signed up in 2023.
 
 SELECT 
